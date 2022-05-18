@@ -7,6 +7,7 @@ public class Menu extends JFrame implements ActionListener{
 
     private JButton exit;
     private JButton joinGame;
+    private JButton hostGame;
     private JLabel  title;
 
 
@@ -26,12 +27,17 @@ public class Menu extends JFrame implements ActionListener{
         joinGame.addActionListener(this);
         cp.add(joinGame);
 
+        hostGame = new JButton("Host game");
+        hostGame.setBounds(20, 200, 177, 25);
+        hostGame.addActionListener(this);
+        cp.add(hostGame);
+
         exit = new JButton("exit");
         exit.setBounds(20, 155, 177, 25);
         exit.addActionListener(this);
         cp.add(exit);
 
-        setSize(new Dimension(232, 300));
+        setSize(new Dimension(232, 305));
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setResizable(false);
         setVisible(true);

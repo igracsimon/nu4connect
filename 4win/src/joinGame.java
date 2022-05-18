@@ -57,6 +57,12 @@ public class joinGame extends JFrame implements ActionListener{
         if(e.getSource() == exit){
             Menu tMenu = new Menu();
             dispose();
+        } else if (e.getSource() == join){
+           try {
+               Client nuClient = new Client(entIp.getText()); //TODO: enter IP
+           } catch (Exception h){
+               h.printStackTrace();
+           } //TODO: ????????????
         }
 
     }

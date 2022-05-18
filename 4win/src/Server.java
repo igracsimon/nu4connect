@@ -1,95 +1,48 @@
 import java.io.*;
 import java.net.ServerSocket;
-import java.net.Socket ;
-import java.util.ArrayList;
-import java.util.Iterator;
 import java.net.Socket;
 import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import java.util.Scanner;
 
 public class Server {
 
-    Socket server = new Socket();
-    private ArrayList clientStreams;
+    private ServerSocket serverSocket;
 
-    public void addLenAndSendMessage(byte[] message) {
+    private Socket socket = new Socket();
 
+    private ServerControl Scontrol;
+
+
+
+    public Server(ServerControl control){
+        this.Scontrol = control;
         try {
-            byte[] len = ByteBuffer.allocate(4)
-                    .putInt(message.length)
-                    .array();
-            byte[] out = ByteBuffer.allocate(len.length + message.length)
-                    .put(len)
-                    .put(message)
-                    .array();
-
-            server.getOutputStream().write(out);
+            serverSocket = new ServerSocket(5050); //TODO: PORT??
         } catch (IOException e) {
-            System.out.println("Could not send Message to " + server.getInetAddress().getHostName());
+            throw new RuntimeException(e);
         }
     }
 
-    public void start() {
-        clientStreams = new ArrayList();
 
-        try {
-            ServerSocket serverSocket = new ServerSocket(5000); //TODO
 
-            while (true) {
-                Socket clientSocket = serverSocket.accept();
-                PrintWriter writer = new PrintWriter(clientSocket.getOutputStream());
-                clientStreams.add(writer);
-                Thread t = new Thread(new ClientHandler(clientSocket));
-                t.start();
-                System.out.println("Habe eine Verbindung");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void sendToAll(String pMessage){
-            Iterator it = clientStreams.iterator();
-            while(it.hasNext()){
-                try{
-                    PrintWriter writer = (PrintWriter) it.next();
-                    writer.println(pMessage);
-                    writer.flush();
-                } catch (Exception e){
-                    e.printStackTrace();
-                }
-            }
-    }
-
-    public class ClientHandler implements Runnable{
-
-        private BufferedReader reader;
-        private Socket sock;
-
-        public ClientHandler(Socket pClientSocket){
-            try{
-                sock = pClientSocket;
-                InputStreamReader isReader = new InputStreamReader(sock.getInputStream());
-                reader = new BufferedReader(isReader);
-            } catch (Exception e){
-                e.printStackTrace();
-            }
-        }
-
-        @Override
-
-        public void run(){
-            String message;
+    /**
+     * Mit dieser Funktion kannst du dem Server beitreten
+     */
+    public void startServer(){
+        for (int i = 0; i <2 ; i++) {
             try {
-                while ((message = reader.readLine()) != null){
-                    System.out.println("gelesen (s): " + message);
-                    sendToAll(message);
-                }
-            } catch (Exception e){
-                e.printStackTrace();
+                socket = serverSocket.accept();
+                Scontrol.addClienthandler(new ClientHandler(socket));
+                new Thread(Scontrol.getClienthandler(i)::init).start();
+
+            } catch (IOException e) {
+                throw new RuntimeException(e);
             }
+            System.out.println("Beide clients sind da");
         }
     }
 
 
-}
+    }
 
